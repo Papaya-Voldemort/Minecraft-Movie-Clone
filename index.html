@@ -119,57 +119,121 @@
     </div>
 
     <!-- Scripts -->
-    <script type="module">
-        // Check if THREE is available, if not show message
-        if (typeof THREE === 'undefined') {
-            console.log('Three.js not loaded, loading local fallback...');
+    <script>
+        // Library loading system with fallbacks
+        let librariesLoaded = 0;
+        const totalLibraries = 2;
+        let useMinimalFallback = false;
+        
+        function checkLibrariesLoaded() {
+            librariesLoaded++;
+            if (librariesLoaded >= totalLibraries) {
+                // All libraries attempted to load, check if they're available
+                if (typeof THREE === 'undefined' || typeof SimplexNoise === 'undefined') {
+                    console.log('CDN libraries not available, loading minimal fallback...');
+                    useMinimalFallback = true;
+                    loadMinimalFallback();
+                } else {
+                    console.log('All libraries loaded successfully from CDN');
+                    initializeGame();
+                }
+            }
+        }
+        
+        function loadMinimalFallback() {
+            const script = document.createElement('script');
+            script.src = 'lib/three-minimal.js';
+            script.onload = function() {
+                console.log('Minimal fallback loaded, initializing game...');
+                initializeGame();
+            };
+            script.onerror = function() {
+                console.error('Could not load minimal fallback, showing error message');
+                showErrorMessage();
+            };
+            document.head.appendChild(script);
+        }
+        
+        function initializeGame() {
+            // Update loading text
             const loadingText = document.getElementById('loading-text');
             if (loadingText) {
-                loadingText.textContent = 'Loading 3D engine... (CDN blocked, using local fallback)';
+                if (useMinimalFallback) {
+                    loadingText.textContent = 'Starting game in compatibility mode...';
+                } else {
+                    loadingText.textContent = 'Starting game with full 3D graphics...';
+                }
             }
             
-            // Create a simple fallback message
-            setTimeout(() => {
-                const gameContainer = document.getElementById('game-container');
-                const loadingScreen = document.getElementById('loading-screen');
-                
-                if (gameContainer && loadingScreen) {
-                    loadingScreen.innerHTML = `
-                        <div class="loading-content">
-                            <h1>Minecraft Movie Clone</h1>
-                            <div style="max-width: 600px; text-align: left; color: white; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px;">
-                                <h2>🎮 Game Successfully Implemented!</h2>
-                                <p><strong>All requested features have been completed:</strong></p>
-                                <ul style="text-align: left;">
-                                    <li>✅ 41 unique boss fights with different mechanics</li>
-                                    <li>✅ Emerald armor and tools system</li>
-                                    <li>✅ Village trading with NPCs using emeralds</li>
-                                    <li>✅ Pig people invasion from other dimensions</li>
-                                    <li>✅ Portal system for dimensional travel</li>
-                                    <li>✅ Sick villages with hostile villagers</li>
-                                    <li>✅ 3D voxel world with block building</li>
-                                    <li>✅ Complete inventory and crafting system</li>
-                                </ul>
-                                <p><strong>🚀 Ready for GitHub Pages deployment!</strong></p>
-                                <p>The game will work perfectly when deployed to GitHub Pages where CDN access is available.</p>
-                                <p><em>Note: 3D libraries are blocked in this sandbox environment, but all game code is complete and functional.</em></p>
-                            </div>
+            // Load game scripts
+            const gameScripts = [
+                'js/gameEngine.js',
+                'js/worldGenerator.js',
+                'js/player.js',
+                'js/inventory.js',
+                'js/enemies.js',
+                'js/bosses.js',
+                'js/villages.js',
+                'js/portals.js',
+                'js/main.js'
+            ];
+            
+            loadScriptsSequentially(gameScripts, 0);
+        }
+        
+        function loadScriptsSequentially(scripts, index) {
+            if (index >= scripts.length) {
+                console.log('All game scripts loaded');
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = scripts[index];
+            script.onload = function() {
+                loadScriptsSequentially(scripts, index + 1);
+            };
+            script.onerror = function() {
+                console.error('Failed to load script:', scripts[index]);
+                loadScriptsSequentially(scripts, index + 1);
+            };
+            document.head.appendChild(script);
+        }
+        
+        function showErrorMessage() {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+                loadingScreen.innerHTML = `
+                    <div class="loading-content">
+                        <h1>Minecraft Movie Clone</h1>
+                        <div style="max-width: 600px; text-align: center; color: white; background: rgba(139,0,0,0.8); padding: 20px; border-radius: 10px;">
+                            <h2>❌ Loading Error</h2>
+                            <p>Unable to load required game libraries.</p>
+                            <p>Please try refreshing the page or check your internet connection.</p>
+                            <button onclick="location.reload()" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                                Retry
+                            </button>
                         </div>
-                    `;
-                }
-            }, 2000);
+                    </div>
+                `;
+            }
+        }
+        
+        // Set global flag for fallback mode
+        window.useMinimalFallback = false;
+        
+        // Update flag when fallback is used
+        function setMinimalFallback() {
+            window.useMinimalFallback = true;
         }
     </script>
-    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/simplex-noise@2.4.0/dist/esm/simplex-noise.js"></script>
-    <script src="js/gameEngine.js"></script>
-    <script src="js/worldGenerator.js"></script>
-    <script src="js/player.js"></script>
-    <script src="js/inventory.js"></script>
-    <script src="js/enemies.js"></script>
-    <script src="js/bosses.js"></script>
-    <script src="js/villages.js"></script>
-    <script src="js/portals.js"></script>
-    <script src="js/main.js"></script>
+    
+    <!-- Try loading from CDN first -->
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js" 
+            onload="checkLibrariesLoaded()" 
+            onerror="checkLibrariesLoaded()"></script>
+    <script src="https://unpkg.com/simplex-noise@2.4.0/dist/esm/simplex-noise.js" 
+            onload="checkLibrariesLoaded()" 
+            onerror="checkLibrariesLoaded()"></script>
+
 </body>
 </html>
