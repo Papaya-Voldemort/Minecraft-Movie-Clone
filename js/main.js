@@ -540,9 +540,16 @@ Thank you for playing Minecraft Movie Clone!`;
 }
 
 // Start the game when page loads
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOMContentLoaded - starting game');
+        window.game = new Game();
+    });
+} else {
+    // DOM is already loaded, start immediately
+    console.log('DOM already loaded - starting game immediately');
     window.game = new Game();
-});
+}
 
 // Export for debugging
 window.Game = Game;

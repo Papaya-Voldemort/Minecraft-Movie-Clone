@@ -52,9 +52,16 @@ class GameEngine {
     }
     
     initRenderer() {
+        // Check if we're in minimal fallback mode
+        const isMinimalMode = window.useMinimalFallback || typeof THREE.WebGLRenderer === 'undefined';
+        
         // Create scene
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.Fog(0x87CEEB, 50, 200);
+        
+        // Add fog only if available
+        if (THREE.Fog) {
+            this.scene.fog = new THREE.Fog(0x87CEEB, 50, 200);
+        }
         
         // Create camera
         this.camera = new THREE.PerspectiveCamera(
@@ -65,14 +72,29 @@ class GameEngine {
         );
         
         // Create renderer
+        const canvas = document.getElementById('game-canvas');
         this.renderer = new THREE.WebGLRenderer({
-            canvas: document.getElementById('game-canvas'),
-            antialias: true
+            canvas: canvas,
+            antialias: !isMinimalMode // Disable antialiasing in minimal mode
         });
+        
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0x87CEEB);
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+        // Only enable shadows if supported
+        if (this.renderer.shadowMap && !isMinimalMode) {
+            this.renderer.shadowMap.enabled = true;
+            if (THREE.PCFSoftShadowMap) {
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            }
+        }
+        
+        // Store minimal mode flag
+        this.isMinimalMode = isMinimalMode;
+        
+        if (isMinimalMode) {
+            console.log('Game Engine initialized in minimal/compatibility mode');
+        }
         
         // Add lighting
         this.setupLighting();
