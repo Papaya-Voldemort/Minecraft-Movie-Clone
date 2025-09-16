@@ -5,15 +5,11 @@ class Player {
         this.gameEngine = gameEngine;
         
         // Position and movement
-        console.log('Setting up player position and movement...');
         this.position = new THREE.Vector3(0, 35, 0);
         this.velocity = new THREE.Vector3();
-        console.log('Creating rotation (THREE.Euler)...');
         this.rotation = new THREE.Euler();
-        console.log('Player rotation created successfully');
         
         // Player stats
-        console.log('Setting up player stats...');
         this.health = 100;
         this.maxHealth = 100;
         this.emeralds = 0;
@@ -53,9 +49,7 @@ class Player {
             boots: null
         };
         
-        console.log('Initializing player camera...');
         this.initCamera();
-        console.log('Updating player UI...');
         this.updateUI();
         console.log('Player constructor completed successfully');
     }

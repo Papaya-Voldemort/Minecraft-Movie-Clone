@@ -5,11 +5,8 @@ class GameEngine {
         this.scene = null;
         this.camera = null;
         this.renderer = null;
-        console.log('Creating THREE.Raycaster...');
         this.raycaster = new THREE.Raycaster();
-        console.log('Creating THREE.Vector2...');
         this.mouse = new THREE.Vector2();
-        console.log('Basic objects created successfully');
         
         // Game state
         this.isRunning = false;
@@ -39,9 +36,7 @@ class GameEngine {
         
         // Materials for different blocks
         this.materials = {};
-        console.log('Setting up materials...');
         this.setupMaterials();
-        console.log('Materials setup completed');
         
         // World data
         this.world = {};
@@ -53,10 +48,7 @@ class GameEngine {
         this.maxFPS = 60;
         this.frameTime = 1000 / this.maxFPS;
         
-        console.log('Initializing renderer...');
         this.initRenderer();
-        console.log('Renderer initialized successfully');
-        console.log('Setting up event listeners...');
         this.setupEventListeners();
         console.log('GameEngine constructor completed successfully');
     }
@@ -111,15 +103,11 @@ class GameEngine {
     }
     
     setupLighting() {
-        console.log('Setting up lighting...');
         // Ambient light
-        console.log('Creating ambient light...');
         const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
         this.scene.add(ambientLight);
-        console.log('Ambient light added to scene');
         
         // Directional light (sun)
-        console.log('Creating directional light...');
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
         directionalLight.position.set(50, 100, 50);
         directionalLight.castShadow = true;
@@ -134,47 +122,31 @@ class GameEngine {
         directionalLight.shadow.mapSize.height = 2048;
         
         this.scene.add(directionalLight);
-        console.log('Directional light added to scene');
-        console.log('Lighting setup completed');
     }
     
     setupMaterials() {
-        console.log('Setting up materials...');
         // Create textures and materials for different block types
-        console.log('Creating texture loader...');
         const textureLoader = new THREE.TextureLoader();
-        console.log('Texture loader created successfully');
         
         // Basic colored materials for now
-        console.log('Creating material for DIRT...');
         this.materials[this.blockTypes.DIRT] = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-        console.log('Creating material for STONE...');
         this.materials[this.blockTypes.STONE] = new THREE.MeshLambertMaterial({ color: 0x808080 });
-        console.log('Creating material for GRASS...');
         this.materials[this.blockTypes.GRASS] = new THREE.MeshLambertMaterial({ color: 0x228B22 });
-        console.log('Creating material for WOOD...');
         this.materials[this.blockTypes.WOOD] = new THREE.MeshLambertMaterial({ color: 0xD2691E });
-        console.log('Creating material for LEAVES...');
         this.materials[this.blockTypes.LEAVES] = new THREE.MeshLambertMaterial({ color: 0x32CD32 });
-        console.log('Creating material for SAND...');
         this.materials[this.blockTypes.SAND] = new THREE.MeshLambertMaterial({ color: 0xF4A460 });
-        console.log('Creating material for WATER...');
         this.materials[this.blockTypes.WATER] = new THREE.MeshLambertMaterial({ 
             color: 0x1E90FF,
             transparent: true,
             opacity: 0.7
         });
-        console.log('Creating material for EMERALD_ORE...');
         this.materials[this.blockTypes.EMERALD_ORE] = new THREE.MeshLambertMaterial({ color: 0x00FF7F });
-        console.log('Creating material for OBSIDIAN...');
         this.materials[this.blockTypes.OBSIDIAN] = new THREE.MeshLambertMaterial({ color: 0x191970 });
-        console.log('Creating material for PORTAL...');
         this.materials[this.blockTypes.PORTAL] = new THREE.MeshLambertMaterial({ 
             color: 0x8A2BE2,
             transparent: true,
             opacity: 0.8
         });
-        console.log('All materials created successfully');
     }
     
     setupEventListeners() {
