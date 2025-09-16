@@ -120,49 +120,14 @@
 
     <!-- Scripts -->
     <script>
-        // Library loading system with fallbacks
-        let librariesLoaded = 0;
-        const totalLibraries = 2;
-        let useMinimalFallback = false;
-        
-        function checkLibrariesLoaded() {
-            librariesLoaded++;
-            if (librariesLoaded >= totalLibraries) {
-                // All libraries attempted to load, check if they're available
-                if (typeof THREE === 'undefined' || typeof SimplexNoise === 'undefined') {
-                    console.log('CDN libraries not available, loading minimal fallback...');
-                    useMinimalFallback = true;
-                    loadMinimalFallback();
-                } else {
-                    console.log('All libraries loaded successfully from CDN');
-                    initializeGame();
-                }
-            }
-        }
-        
-        function loadMinimalFallback() {
-            const script = document.createElement('script');
-            script.src = 'lib/three-minimal.js';
-            script.onload = function() {
-                console.log('Minimal fallback loaded, initializing game...');
-                initializeGame();
-            };
-            script.onerror = function() {
-                console.error('Could not load minimal fallback, showing error message');
-                showErrorMessage();
-            };
-            document.head.appendChild(script);
-        }
+        // Flag for minimal fallback mode
+        window.useMinimalFallback = false;
         
         function initializeGame() {
             // Update loading text
             const loadingText = document.getElementById('loading-text');
             if (loadingText) {
-                if (useMinimalFallback) {
-                    loadingText.textContent = 'Starting game in compatibility mode...';
-                } else {
-                    loadingText.textContent = 'Starting game with full 3D graphics...';
-                }
+                loadingText.textContent = 'Starting game with local dependencies...';
             }
             
             // Load game scripts
@@ -217,23 +182,22 @@
                 `;
             }
         }
-        
-        // Set global flag for fallback mode
-        window.useMinimalFallback = false;
-        
-        // Update flag when fallback is used
-        function setMinimalFallback() {
-            window.useMinimalFallback = true;
-        }
     </script>
     
-    <!-- Try loading from CDN first -->
-    <script src="https://unpkg.com/three@0.128.0/build/three.min.js" 
-            onload="checkLibrariesLoaded()" 
-            onerror="checkLibrariesLoaded()"></script>
-    <script src="https://unpkg.com/simplex-noise@2.4.0/dist/esm/simplex-noise.js" 
-            onload="checkLibrariesLoaded()" 
-            onerror="checkLibrariesLoaded()"></script>
+    <!-- Load local dependencies -->
+    <script src="lib/three-minimal.js"></script>
+    <script>
+        // Check that libraries loaded properly
+        if (typeof THREE === 'undefined' || typeof SimplexNoise === 'undefined') {
+            console.error('Required libraries failed to load');
+            showErrorMessage();
+        } else {
+            console.log('Local dependencies loaded successfully');
+            // Set flag to use minimal mode
+            window.useMinimalFallback = true;
+            initializeGame();
+        }
+    </script>
 
 </body>
 </html>

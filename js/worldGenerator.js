@@ -2,7 +2,18 @@
 class WorldGenerator {
     constructor(gameEngine) {
         this.gameEngine = gameEngine;
-        this.simplex = new SimplexNoise();
+        
+        try {
+            this.simplex = new SimplexNoise();
+            console.log('SimplexNoise instance created successfully');
+        } catch (error) {
+            console.error('Failed to create SimplexNoise:', error);
+            // Fallback to basic noise
+            this.simplex = {
+                noise2D: (x, y) => (Math.sin(x * 12.9898) + Math.cos(y * 78.233)) * 0.5,
+                noise3D: (x, y, z) => (Math.sin(x * 12.9898) + Math.cos(y * 78.233) + Math.sin(z * 37.719)) * 0.33
+            };
+        }
         
         // Generation settings
         this.baseHeight = 32;
@@ -23,23 +34,60 @@ class WorldGenerator {
         
         this.generatedVillages = new Set();
         this.generatedPortals = new Set();
+        
+        console.log('WorldGenerator initialized successfully');
     }
     
     generateChunk(chunkX, chunkZ) {
+        try {
+            console.log(`Generating chunk (${chunkX}, ${chunkZ})...`);
+            const startX = chunkX * this.gameEngine.chunkSize;
+            const startZ = chunkZ * this.gameEngine.chunkSize;
+            
+            for (let x = 0; x < this.gameEngine.chunkSize; x++) {
+                for (let z = 0; z < this.gameEngine.chunkSize; z++) {
+                    const worldX = startX + x;
+                    const worldZ = startZ + z;
+                    
+                    this.generateColumn(worldX, worldZ);
+                }
+            }
+            
+            // Generate structures for this chunk
+            this.generateStructures(chunkX, chunkZ);
+            console.log(`Chunk (${chunkX}, ${chunkZ}) generated successfully`);
+        } catch (error) {
+            console.error(`Error generating chunk (${chunkX}, ${chunkZ}):`, error);
+            // Continue with minimal chunk generation
+            this.generateMinimalChunk(chunkX, chunkZ);
+        }
+    }
+    
+    generateMinimalChunk(chunkX, chunkZ) {
+        console.log(`Generating minimal chunk (${chunkX}, ${chunkZ})...`);
         const startX = chunkX * this.gameEngine.chunkSize;
         const startZ = chunkZ * this.gameEngine.chunkSize;
         
+        // Create a simple flat world as fallback
         for (let x = 0; x < this.gameEngine.chunkSize; x++) {
             for (let z = 0; z < this.gameEngine.chunkSize; z++) {
                 const worldX = startX + x;
                 const worldZ = startZ + z;
                 
-                this.generateColumn(worldX, worldZ);
+                // Simple flat terrain
+                for (let y = 0; y <= this.baseHeight; y++) {
+                    let blockType;
+                    if (y === this.baseHeight) {
+                        blockType = this.gameEngine.blockTypes.GRASS;
+                    } else if (y >= this.baseHeight - 3) {
+                        blockType = this.gameEngine.blockTypes.DIRT;
+                    } else {
+                        blockType = this.gameEngine.blockTypes.STONE;
+                    }
+                    this.gameEngine.setBlock(worldX, y, worldZ, blockType);
+                }
             }
         }
-        
-        // Generate structures for this chunk
-        this.generateStructures(chunkX, chunkZ);
     }
     
     generateColumn(x, z) {
@@ -103,29 +151,39 @@ class WorldGenerator {
     }
     
     getBiome(x, z) {
-        const scale = 0.01;
-        const noise = this.simplex.noise2D(x * scale, z * scale);
-        const temp = this.simplex.noise2D(x * scale * 0.5, z * scale * 0.5);
-        
-        if (noise < -0.3) return this.biomes.WATER;
-        if (temp > 0.4) return this.biomes.DESERT;
-        if (noise > 0.3) return this.biomes.MOUNTAINS;
-        if (temp > 0.1) return this.biomes.FOREST;
-        return this.biomes.PLAINS;
+        try {
+            const scale = 0.01;
+            const noise = this.simplex.noise2D(x * scale, z * scale);
+            const temp = this.simplex.noise2D(x * scale * 0.5, z * scale * 0.5);
+            
+            if (noise < -0.3) return this.biomes.WATER;
+            if (temp > 0.4) return this.biomes.DESERT;
+            if (noise > 0.3) return this.biomes.MOUNTAINS;
+            if (temp > 0.1) return this.biomes.FOREST;
+            return this.biomes.PLAINS;
+        } catch (error) {
+            console.warn('Error in getBiome:', error);
+            return this.biomes.PLAINS; // Safe fallback
+        }
     }
     
     getHeight(x, z) {
-        const scale1 = 0.01;
-        const scale2 = 0.005;
-        const scale3 = 0.02;
-        
-        const noise1 = this.simplex.noise2D(x * scale1, z * scale1);
-        const noise2 = this.simplex.noise2D(x * scale2, z * scale2);
-        const noise3 = this.simplex.noise2D(x * scale3, z * scale3);
-        
-        const combined = noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2;
-        
-        return Math.floor(this.baseHeight + combined * this.heightVariation);
+        try {
+            const scale1 = 0.01;
+            const scale2 = 0.005;
+            const scale3 = 0.02;
+            
+            const noise1 = this.simplex.noise2D(x * scale1, z * scale1);
+            const noise2 = this.simplex.noise2D(x * scale2, z * scale2);
+            const noise3 = this.simplex.noise2D(x * scale3, z * scale3);
+            
+            const combined = noise1 * 0.5 + noise2 * 0.3 + noise3 * 0.2;
+            
+            return Math.floor(this.baseHeight + combined * this.heightVariation);
+        } catch (error) {
+            console.warn('Error in getHeight:', error);
+            return this.baseHeight; // Safe fallback
+        }
     }
     
     shouldGenerateOre(x, y, z) {
