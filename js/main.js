@@ -66,6 +66,7 @@ class Game {
         await this.delay(500);
         await this.finalizeSetup();
         
+        console.log('About to start game...');
         // Start the game
         this.startGame();
     }
@@ -113,28 +114,16 @@ class Game {
             window.worldGenerator = this.worldGenerator; // Global reference
             console.log('WorldGenerator created successfully');
             
-            // Skip mesh generation in minimal mode to avoid hanging
-            if (this.gameEngine.isMinimalMode) {
-                console.log('Minimal mode detected - skipping chunk generation for now');
-                return;
-            }
+            // Skip world generation for now - just get the basic game running
+            console.log('Skipping world generation - basic game mode');
             
-            // Generate fewer initial chunks to prevent hanging
-            const chunkRange = 1;
-            console.log(`Generating ${chunkRange * 2 + 1}x${chunkRange * 2 + 1} chunks around spawn`);
-            
-            // Generate initial chunks around spawn
-            for (let x = -chunkRange; x <= chunkRange; x++) {
-                for (let z = -chunkRange; z <= chunkRange; z++) {
-                    console.log(`Generating chunk (${x}, ${z})`);
-                    this.worldGenerator.generateChunk(x, z);
-                    this.gameEngine.updateChunkMesh(x, z);
-                    
-                    // Add small delay to prevent blocking
-                    await this.delay(50);
-                }
+            // Add just a few test blocks manually without complex generation
+            if (this.gameEngine && this.gameEngine.setBlock) {
+                this.gameEngine.setBlock(0, 30, 0, this.gameEngine.blockTypes.GRASS);
+                this.gameEngine.setBlock(1, 30, 0, this.gameEngine.blockTypes.DIRT);
+                this.gameEngine.setBlock(0, 30, 1, this.gameEngine.blockTypes.STONE);
+                console.log('Added basic test blocks');
             }
-            console.log('World generation completed');
         } catch (error) {
             console.error('Error during world generation:', error);
             // Continue with game initialization even if world generation fails
@@ -424,17 +413,24 @@ class Game {
         const loadingScreen = document.getElementById('loading-screen');
         const gameContainer = document.getElementById('game-container');
         
+        console.log('Loading screen element:', loadingScreen ? 'found' : 'not found');
+        console.log('Game container element:', gameContainer ? 'found' : 'not found');
+        
         if (loadingScreen && gameContainer) {
             loadingScreen.style.opacity = '0';
             loadingScreen.style.transition = 'opacity 1s ease';
             
             setTimeout(() => {
+                console.log('Hiding loading screen and showing game container...');
                 loadingScreen.style.display = 'none';
                 gameContainer.style.display = 'block';
                 
                 // Start game engine
+                console.log('Starting game engine...');
                 this.gameEngine.start();
                 this.gameStarted = true;
+                
+                console.log('Game started! Canvas should be visible now.');
                 
                 // Show welcome message
                 setTimeout(() => {
@@ -442,6 +438,8 @@ class Game {
                 }, 1000);
                 
             }, 1000);
+        } else {
+            console.error('Could not find required DOM elements for game start');
         }
     }
     

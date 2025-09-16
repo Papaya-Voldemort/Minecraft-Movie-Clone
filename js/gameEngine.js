@@ -278,8 +278,12 @@ class GameEngine {
         
         // Remove existing chunk mesh
         if (this.chunks.has(chunkKey)) {
-            this.scene.remove(this.chunks.get(chunkKey));
-            this.chunks.get(chunkKey).geometry.dispose();
+            const existingMesh = this.chunks.get(chunkKey);
+            this.scene.remove(existingMesh);
+            // Only dispose if geometry exists and has dispose method
+            if (existingMesh.geometry && typeof existingMesh.geometry.dispose === 'function') {
+                existingMesh.geometry.dispose();
+            }
         }
         
         // Create new chunk mesh
