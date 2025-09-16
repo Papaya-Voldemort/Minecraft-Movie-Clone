@@ -185,9 +185,10 @@
     </script>
     
     <!-- Load local dependencies -->
-    <script src="lib/three-minimal.js"></script>
+    <script src="lib/three-minimal-fixed.js"></script>
     <script>
         // Check that libraries loaded properly
+        console.log('Checking dependencies - THREE:', typeof THREE, 'SimplexNoise:', typeof SimplexNoise);
         if (typeof THREE === 'undefined' || typeof SimplexNoise === 'undefined') {
             console.error('Required libraries failed to load');
             showErrorMessage();

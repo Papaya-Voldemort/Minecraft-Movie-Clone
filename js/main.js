@@ -66,6 +66,7 @@ class Game {
         await this.delay(500);
         await this.finalizeSetup();
         
+        console.log('About to start game...');
         // Start the game
         this.startGame();
     }
@@ -424,17 +425,24 @@ class Game {
         const loadingScreen = document.getElementById('loading-screen');
         const gameContainer = document.getElementById('game-container');
         
+        console.log('Loading screen element:', loadingScreen ? 'found' : 'not found');
+        console.log('Game container element:', gameContainer ? 'found' : 'not found');
+        
         if (loadingScreen && gameContainer) {
             loadingScreen.style.opacity = '0';
             loadingScreen.style.transition = 'opacity 1s ease';
             
             setTimeout(() => {
+                console.log('Hiding loading screen and showing game container...');
                 loadingScreen.style.display = 'none';
                 gameContainer.style.display = 'block';
                 
                 // Start game engine
+                console.log('Starting game engine...');
                 this.gameEngine.start();
                 this.gameStarted = true;
+                
+                console.log('Game started! Canvas should be visible now.');
                 
                 // Show welcome message
                 setTimeout(() => {
@@ -442,6 +450,8 @@ class Game {
                 }, 1000);
                 
             }, 1000);
+        } else {
+            console.error('Could not find required DOM elements for game start');
         }
     }
     
