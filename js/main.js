@@ -107,15 +107,37 @@ class Game {
         this.showLoadingStep();
         console.log('Generating world...');
         
-        this.worldGenerator = new WorldGenerator(this.gameEngine);
-        window.worldGenerator = this.worldGenerator; // Global reference
-        
-        // Generate initial chunks around spawn
-        for (let x = -2; x <= 2; x++) {
-            for (let z = -2; z <= 2; z++) {
-                this.worldGenerator.generateChunk(x, z);
-                this.gameEngine.updateChunkMesh(x, z);
+        try {
+            console.log('Creating WorldGenerator instance...');
+            this.worldGenerator = new WorldGenerator(this.gameEngine);
+            window.worldGenerator = this.worldGenerator; // Global reference
+            console.log('WorldGenerator created successfully');
+            
+            // Skip mesh generation in minimal mode to avoid hanging
+            if (this.gameEngine.isMinimalMode) {
+                console.log('Minimal mode detected - skipping chunk generation for now');
+                return;
             }
+            
+            // Generate fewer initial chunks to prevent hanging
+            const chunkRange = 1;
+            console.log(`Generating ${chunkRange * 2 + 1}x${chunkRange * 2 + 1} chunks around spawn`);
+            
+            // Generate initial chunks around spawn
+            for (let x = -chunkRange; x <= chunkRange; x++) {
+                for (let z = -chunkRange; z <= chunkRange; z++) {
+                    console.log(`Generating chunk (${x}, ${z})`);
+                    this.worldGenerator.generateChunk(x, z);
+                    this.gameEngine.updateChunkMesh(x, z);
+                    
+                    // Add small delay to prevent blocking
+                    await this.delay(50);
+                }
+            }
+            console.log('World generation completed');
+        } catch (error) {
+            console.error('Error during world generation:', error);
+            // Continue with game initialization even if world generation fails
         }
     }
     

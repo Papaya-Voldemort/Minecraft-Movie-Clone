@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Test</title>
+</head>
+<body>
+    <h1>Testing Libraries</h1>
+    <div id="output"></div>
+    
+    <script src="lib/three-minimal.js"></script>
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            console.log(message);
+            output.innerHTML += '<p>' + message + '</p>';
+        }
+        
+        try {
+            log('Testing THREE.js...');
+            if (typeof THREE !== 'undefined') {
+                log('✓ THREE is defined');
+                log('Testing SimplexNoise...');
+                if (typeof SimplexNoise !== 'undefined') {
+                    log('✓ SimplexNoise is defined');
+                    const noise = new SimplexNoise();
+                    const result = noise.noise2D(0.5, 0.5);
+                    log('✓ SimplexNoise.noise2D works: ' + result);
+                    
+                    log('Testing THREE.Scene...');
+                    const scene = new THREE.Scene();
+                    log('✓ THREE.Scene created');
+                    
+                    log('Testing THREE.WebGLRenderer...');
+                    const renderer = new THREE.WebGLRenderer();
+                    log('✓ THREE.WebGLRenderer created');
+                    
+                    log('All basic tests passed!');
+                } else {
+                    log('✗ SimplexNoise is undefined');
+                }
+            } else {
+                log('✗ THREE is undefined');
+            }
+        } catch (error) {
+            log('✗ Error: ' + error.message);
+        }
+    </script>
+</body>
+</html>
