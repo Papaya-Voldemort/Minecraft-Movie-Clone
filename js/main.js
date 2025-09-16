@@ -145,11 +145,20 @@ class Game {
         this.showLoadingStep();
         console.log('Creating player...');
         
-        this.player = new Player(this.gameEngine);
-        window.player = this.player; // Global reference
-        
-        // Position player at spawn
-        this.player.position.set(0, 35, 0);
+        try {
+            console.log('Initializing Player class...');
+            this.player = new Player(this.gameEngine);
+            console.log('Player created successfully');
+            window.player = this.player; // Global reference
+            
+            // Position player at spawn
+            console.log('Setting player spawn position...');
+            this.player.position.set(0, 35, 0);
+            console.log('Player initialized at position:', this.player.position);
+        } catch (error) {
+            console.error('Failed to create player:', error);
+            throw error;
+        }
     }
     
     async initInventory() {
