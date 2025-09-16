@@ -1,6 +1,7 @@
 // Game Engine Core
 class GameEngine {
     constructor() {
+        console.log('GameEngine constructor started...');
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -49,6 +50,7 @@ class GameEngine {
         
         this.initRenderer();
         this.setupEventListeners();
+        console.log('GameEngine constructor completed successfully');
     }
     
     initRenderer() {

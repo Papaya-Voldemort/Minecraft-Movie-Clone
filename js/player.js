@@ -1,6 +1,7 @@
 // Player class for first-person controls and interaction
 class Player {
     constructor(gameEngine) {
+        console.log('Player constructor started...');
         this.gameEngine = gameEngine;
         
         // Position and movement
@@ -50,6 +51,7 @@ class Player {
         
         this.initCamera();
         this.updateUI();
+        console.log('Player constructor completed successfully');
     }
     
     initCamera() {
